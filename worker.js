@@ -23,16 +23,7 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === '/' || url.pathname === '') {
-      return jsonResponse({
-        service: 'binance-kline-api',
-        status: 'ok',
-        endpoints: {
-          health: '/health',
-          kline: '/kline?symbol=BTCUSDT&interval=1m&limit=100',
-          klines: '/klines?symbol=ETHUSDT&interval=5m&limit=200'
-        },
-        note: 'Use /kline or /klines with query params: symbol, interval, limit, startTime, endTime'
-      });
+      return htmlResponse(renderHomePage());
     }
 
     if (url.pathname === '/health') {
@@ -156,4 +147,47 @@ function jsonResponse(payload, status = 200) {
       ...corsHeaders()
     }
   });
+}
+
+function htmlResponse(html, status = 200) {
+  return new Response(html, {
+    status,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      ...corsHeaders()
+    }
+  });
+}
+
+function renderHomePage() {
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binance Kline API</title>
+    <style>
+      body { font-family: Arial, sans-serif; background:#0b1020; color:#e5e7eb; margin:0; padding:32px; }
+      .card { max-width: 900px; margin: 0 auto; background:#111827; border:1px solid #374151; border-radius:12px; padding:24px; }
+      h1 { margin-top:0; color:#93c5fd; }
+      code { background:#1f2937; padding:2px 6px; border-radius:6px; color:#fde68a; }
+      a { color:#86efac; }
+      .muted { color:#9ca3af; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>✅ Binance Kline Worker is running</h1>
+      <p class="muted">브라우저에서 루트 주소를 열었을 때 JSON 에러처럼 보이지 않도록 안내 페이지를 보여줍니다.</p>
+      <h2>API Endpoints</h2>
+      <ul>
+        <li><code>/health</code></li>
+        <li><code>/kline?symbol=BTCUSDT&interval=1m&limit=100</code></li>
+        <li><code>/klines?symbol=ETHUSDT&interval=5m&limit=200</code></li>
+      </ul>
+      <h2>Example</h2>
+      <p><a href="/kline?symbol=BTCUSDT&interval=1m&limit=5">/kline?symbol=BTCUSDT&interval=1m&limit=5</a></p>
+    </div>
+  </body>
+</html>`;
 }

@@ -1,0 +1,10 @@
+name = "binance-kline-api"
+main = "worker.js"
+compatibility_date = "2026-02-20"
+workers_dev = true
+
+[observability.logs]
+enabled = true
+
+[env.alt]
+name = "binance-kline-api-alt"

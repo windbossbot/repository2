@@ -12,17 +12,36 @@ const ALLOWED_INTERVALS = new Set([
 
 export default {
   async fetch(request) {
+    if (request.method !== 'GET' && request.method !== 'OPTIONS') {
+      return jsonResponse({ error: 'Method Not Allowed', message: 'Use GET requests only.' }, 405);
+    }
+
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
     const url = new URL(request.url);
 
+    if (url.pathname === '/' || url.pathname === '') {
+      return jsonResponse({
+        service: 'binance-kline-api',
+        status: 'ok',
+        endpoints: {
+          health: '/health',
+          kline: '/kline?symbol=BTCUSDT&interval=1m&limit=100',
+          klines: '/klines?symbol=ETHUSDT&interval=5m&limit=200'
+        },
+        note: 'Use /kline or /klines with query params: symbol, interval, limit, startTime, endTime'
+      });
+    }
+
     if (url.pathname === '/health') {
       return jsonResponse({ status: 'ok' }, 200);
     }
 
-    if (url.pathname !== '/kline' && url.pathname !== '/klines') {
+    const pathname = url.pathname.endsWith('/') && url.pathname !== '/' ? url.pathname.slice(0, -1) : url.pathname;
+
+    if (pathname !== '/kline' && pathname !== '/klines') {
       return jsonResponse(
         {
           error: 'Not Found',
